@@ -7,53 +7,54 @@ html_doc = urlopen('https://news.yandex.ru/science.html').read()
 
 soup = BeautifulSoup(html_doc, 'lxml')
  
-#print(soup)
+result_dic={}
+list_temp = []
 
-#for meta in soup.find_all('meta'):
-#    print(meta.get('content'))
+list_story = soup.select("div.story")#ссылки на новости
+for story in list_story:
+	
+	list_temp.clear()	
 
-#div_mas=soup.find_all("div", role="listitem")
+	a = story.find('a', class_='link')	
 
-#----------------------------------------
-mas_src_img=[]
-temp=soup.find_all('img', class_='image') #получил все ссылки на картинки
-del temp[0]# первая картинка не новости
-for i in temp:
-	mas_src_img.append(i.get('src'))
-#----------------------------------------
+	img = a.find('img', class_='image')
+	list_temp.append(img.attrs["src"]) # Картинка
 
-#-------------------------------------------
-temp = soup.select("h2.story__title a") #ссылки на новости
-mas_a_herf=[]
-for i in temp:
-	mas_a_herf.append("https://news.yandex.ru"+i.attrs["href"])
-#--------------------------------------------
+	div = story.find('div', class_='story__content')
+	h2 = div.find('h2', class_='story__title')
+	#a_title = h2.find('a', class_='link')
+	#list_temp.append(a_title.get_text())# можно так, но и без него работает
+	list_temp.append(h2.get_text()) # Заголовок
 
-#-----------------------------------------
-mas_text_h2=[]
-temp = soup.select("h2.story__title") #заголовки новостей
-for i in temp:
-	mas_text_h2.append(i.get_text())
-#-----------------------------------------
+	div_text = div.find('div', class_='story__text')
+	list_temp.append(div_text.get_text())
 
-#-----------------------------------------
-mas_text=[]
-temp = soup.select("div.story__text") #краткое описание новостей
-for i in temp:
-	mas_text.append(i.get_text())
-#-----------------------------------------
+	result_dic["https://news.yandex.ru"+a.attrs["href"]] = list_temp # записали ссылку на новость
+	
+	#print("https://news.yandex.ru"+a.attrs["href"])
+	#print(list_temp[0])
+	#print(list_temp[1])
+	#print(list_temp[2])	
+	#print('\n')
 
-#print(mas_src_img[0])
-#print(mas_a_herf[0])
-#print(mas_text_h2[0])
-#print(mas_text[0])
+	i = input('Продолжить?   1/0 в роли д/н  ')
 
-itog=[mas_src_img, mas_a_herf, mas_text_h2, mas_text]
+	if i=='1':
+		temp=json.dumps(result_dic)
+		print('в jsone')
+		print(temp)
+		temp2=json.loads(temp)
+		print('в pythone')
+		print(temp2)
+	else:
+		break	
 
-#temp=json.dumps(itog)
-temp=json.dumps(mas_src_img)
-print('В виде json:')
-print(temp)
+
+#print(result_dic)
+
+temp=json.dumps(result_dic)
+#print('в jsone')
+#print(temp)
 temp2=json.loads(temp)
-print('В виде python:')
-print(temp2)
+#print('в pythone')
+#print(temp2)
